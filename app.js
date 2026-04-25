@@ -16,7 +16,7 @@ const els = {
     
     // HARDCODED KEYS
     HARDCODED_TOKEN: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IkdYdExONzViZlZQakdvNERWdjV4QkRITHpnSSIsImtpZCI6IkdYdExONzViZlZQakdvNERWdjV4QkRITHpnSSJ9.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmZpcmVhbnQudm4iLCJhdWQiOiJodHRwczovL2FjY291bnRzLmZpcmVhbnQudm4vcmVzb3VyY2VzIiwiZXhwIjoyMDc3MDg5NTA2LCJuYmYiOjE3NzcwODk1MDYsImNsaWVudF9pZCI6ImZpcmVhbnQud2ViIiwic2NvcGUiOlsib3BlbmlkIiwicHJvZmlsZSIsInJvbGVzIiwiZW1haWwiLCJhY2NvdW50cy1yZWFkIiwiYWNjb3VudHMtd3JpdGUiLCJvcmRlcnMtcmVhZCIsIm9yZGVycy13cml0ZSIsImNvbXBhbmllcy1yZWFkIiwiaW5kaXZpZHVhbHMtcmVhZCIsImZpbmFuY2UtcmVhZCIsInBvc3RzLXdyaXRlIiwicG9zdHMtcmVhZCIsInN5bWJvbHMtcmVhZCIsInVzZXItZGF0YS1yZWFkIiwidXNlci1kYXRhLXdyaXRlIiwidXNlcnMtcmVhZCIsInNlYXJjaCIsImFjYWRlbXktcmVhZCIsImFjYWRlbXktd3JpdGUiLCJibG9nLXJlYWQiLCJpbnZlc3RvcGVkaWEtcmVhZCJdLCJzdWIiOiIyNTAyZDMyMi0yNWM0LTQ3MjUtOGUyYS1hZTVmZjc2ZDYzMGYiLCJhdXRoX3RpbWUiOjE3NzcwODk0NzksImlkcCI6Imlkc3J2IiwibmFtZSI6ImduMTQ1MTNAZ21haWwuY29tIiwic2VjdXJpdHlfc3RhbXAiOiI0YmRlN2Y1MC01NzY2LTQ5ZjEtODQ5ZS02NWU4ZWRhYmJiN2EiLCJqdGkiOiI1NTdmM2EwMjQ1ZDNlMDU5NDQ5YTg3NDhkMGNhZWVkNiIsImFtciI6WyJwYXNzd29yZCJdfQ.SRaT4E0pgLhinp2LMxg5Nuizpx8owQWHVbZdxOLbYPwJcVyed6eL4FNMRoJ7bsOu3kehdaYEySZ2rUbcbtY-ghRMQ2XFPccVsUSbWJjIdD9gD1nnsD4HQcPOmFy0nxvWaJo_zW0UmyEm1KenJVjrXEJF5YvoeWVW6hEqx11lsk6oCzVdG9MFNZFMENUWbJcjy2V3zqQpJb5y_6_fKZGendH_T9dBHo_4cm5QozuDBGQTX7jeAYinYMDcJNMI8Ou26yevlCveXYkzIU5lxtSfN0DjUdWGdhqy0rn0P9yDRwT8qmyAeFE3ryCFpt0dFvOQbN_qPvM9nEQ_3b4sGeyirg',
-    HARDCODED_GEMINI: 'AIzaSyCE6F1L5ts0TZ3PHhU95SM-dDeotHbUzT8',
+    HARDCODED_GEMINI: 'AIzaSyCxD787afacyFKnuCFzk8KQASNtG_z-ZMo',
     
     symbolSearch: document.getElementById('symbolSearch'),
     searchBtn: document.getElementById('btnSearch'),
@@ -90,7 +90,8 @@ function init() {
     els.tokenInput.value = savedToken;
 
     let savedGemini = localStorage.getItem('gemini_api_key');
-    if (!savedGemini) {
+    // Force update if the saved key is empty OR if it matches the old leaked key
+    if (!savedGemini || savedGemini === 'AIzaSyCE6F1L5ts0TZ3PHhU95SM-dDeotHbUzT8') {
         savedGemini = els.HARDCODED_GEMINI;
         localStorage.setItem('gemini_api_key', savedGemini);
     }
@@ -326,8 +327,9 @@ function renderDashboard(data, allData) {
 
     els.valRevenue.textContent = formatBillion(latestNetSales) + ' tỷ';
     els.valProfit.textContent = formatBillion(latestProfit) + ' tỷ';
-    els.valGrossMargin.textContent = formatPercent(latestGrossMargin);
-    els.valROE.textContent = formatPercent(latestROE);
+    if (els.valGrossMargin) els.valGrossMargin.textContent = formatPercent(latestGrossMargin);
+    if (els.valROE) els.valROE.textContent = formatPercent(latestROE);
+
 
     // Calculate growth safely (QoQ or YoY depends on type)
     if (previous) {
@@ -670,7 +672,11 @@ async function handleAnalyzeImage() {
         const response = await callGeminiAI(apiKey, selectedFilesData);
         displayAIAnalysis(response);
     } catch (error) {
-        alert("Lỗi khi phân tích: " + error.message);
+        let errMsg = error.message;
+        if (errMsg.toLowerCase().includes("api key") || errMsg.toLowerCase().includes("leaked") || errMsg.toLowerCase().includes("invalid")) {
+            errMsg = "Khóa API Gemini mặc định đã lỗi. Vui lòng nhập Key của bạn trong phần Cài đặt (⚙️).";
+        }
+        alert("Lỗi khi phân tích: " + errMsg);
         els.previewArea.classList.remove('hidden');
         els.previewArea.classList.add('flex');
     } finally {
@@ -840,7 +846,13 @@ ROE = ${formatPercent(getFin(latest, ['ROE']))}, P/E = ${latest.PE || getFin(lat
         
     } catch (error) {
         removeLoading();
-        appendMessage('model', "Xin lỗi, đã có lỗi xảy ra: " + error.message);
+        let errMsg = error.message;
+        if (errMsg.toLowerCase().includes("api key") || errMsg.toLowerCase().includes("leaked") || errMsg.toLowerCase().includes("invalid")) {
+            errMsg = "Khóa API Gemini (AI) mặc định đã hết hạn hoặc bị vô hiệu hóa. <br><br>👉 Vui lòng mở phần <strong>Cài đặt</strong> (biểu tượng ⚙️ ở góc phải trên cùng) và nhập <strong>Gemini API Key</strong> của riêng bạn để tiếp tục sử dụng tính năng AI nhé!";
+        } else {
+            errMsg = "Xin lỗi, đã có lỗi xảy ra: " + errMsg;
+        }
+        appendMessage('model', errMsg);
         chatHistory.pop(); // Remove the failed user message from history to prevent sync issues
     }
 }

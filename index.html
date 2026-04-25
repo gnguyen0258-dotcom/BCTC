@@ -53,26 +53,27 @@
 </head>
 <body class="bg-dark-bg text-white antialiased font-sans flex flex-col h-screen overflow-hidden">
     
-    <!-- Header with Integrated Search -->
-    <header class="safe-top flex items-center gap-3 px-4 py-3 border-b border-dark-border bg-dark-bg/95 backdrop-blur z-50 shrink-0">
+    <!-- Header with Integrated Search & Safe Area Fix -->
+    <header class="flex items-center gap-3 px-4 pb-3 border-b border-dark-border bg-dark-bg/95 backdrop-blur z-50 shrink-0" style="padding-top: max(20px, env(safe-area-inset-top));">
         <div class="flex items-center gap-1.5 shrink-0">
-            <i class="fa-solid fa-chart-line text-brand text-lg"></i>
-            <h1 class="font-bold text-base tracking-tight hidden sm:block">Fina<span class="text-brand">Sight</span></h1>
+            <i class="fa-solid fa-chart-line text-brand text-xl"></i>
+            <h1 class="font-bold text-lg tracking-tight hidden sm:block">Fina<span class="text-brand">Sight</span></h1>
         </div>
         
         <!-- Search Box Integrated -->
         <div class="relative flex-1">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <i class="fa-solid fa-magnifying-glass text-gray-500 text-xs"></i>
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                <i class="fa-solid fa-magnifying-glass text-gray-500 text-sm"></i>
             </div>
-            <input type="text" id="symbolSearch" class="w-full bg-dark-card border border-dark-border rounded-full py-1.5 pl-8 pr-12 text-sm font-medium focus:outline-none focus:border-brand uppercase placeholder:normal-case placeholder:font-normal placeholder:text-gray-500 transition-all" placeholder="Tìm mã..." autocomplete="off">
-            <button id="btnSearch" class="absolute inset-y-1 right-1 px-3 bg-brand text-black font-bold rounded-full hover:bg-brand-dark transition text-[10px] uppercase">
-                OK
+            <!-- Input text-base prevents iOS Safari auto-zoom. py-2.5 makes it taller -->
+            <input type="text" id="symbolSearch" class="w-full bg-dark-card border border-dark-border rounded-full py-2.5 pl-10 pr-16 text-base font-medium focus:outline-none focus:border-brand uppercase placeholder:normal-case placeholder:font-normal placeholder:text-gray-500 transition-all shadow-sm" placeholder="Tìm mã..." autocomplete="off">
+            <button id="btnSearch" class="absolute inset-y-1.5 right-1.5 px-4 bg-brand text-black font-bold rounded-full hover:bg-brand-dark transition text-xs uppercase shadow-sm">
+                Tìm
             </button>
         </div>
 
-        <button id="btnSettings" class="p-2 rounded-full hover:bg-dark-card transition shrink-0">
-            <i class="fa-solid fa-gear text-gray-400"></i>
+        <button id="btnSettings" class="p-2.5 rounded-full hover:bg-dark-card transition shrink-0 active:scale-95">
+            <i class="fa-solid fa-gear text-gray-400 text-xl"></i>
         </button>
     </header>
 
@@ -140,16 +141,24 @@
                     </div>
 
                     <!-- Highlight Cards -->
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="bg-dark-card rounded-2xl p-4 border border-dark-border">
-                            <p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Doanh thu</p>
-                            <p id="valRevenue" class="text-lg font-bold text-white leading-tight">---</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="bg-dark-card rounded-xl p-3 border border-dark-border">
+                            <p class="text-[9px] text-gray-500 font-bold uppercase mb-1">Doanh thu</p>
+                            <p id="valRevenue" class="text-base font-bold text-white leading-tight">---</p>
                             <p id="groRevenue" class="text-[9px] mt-1 font-medium">---</p>
                         </div>
-                        <div class="bg-dark-card rounded-2xl p-4 border border-dark-border">
-                            <p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Lợi nhuận</p>
-                            <p id="valProfit" class="text-lg font-bold text-white leading-tight">---</p>
+                        <div class="bg-dark-card rounded-xl p-3 border border-dark-border">
+                            <p class="text-[9px] text-gray-500 font-bold uppercase mb-1">Lợi nhuận</p>
+                            <p id="valProfit" class="text-base font-bold text-white leading-tight">---</p>
                             <p id="groProfit" class="text-[9px] mt-1 font-medium">---</p>
+                        </div>
+                        <div class="bg-dark-card rounded-xl p-3 border border-dark-border flex flex-col justify-center">
+                            <p class="text-[9px] text-gray-500 font-bold uppercase mb-1">Biên LN Gộp</p>
+                            <p id="valGrossMargin" class="text-base font-bold text-white leading-tight">---</p>
+                        </div>
+                        <div class="bg-dark-card rounded-xl p-3 border border-dark-border flex flex-col justify-center">
+                            <p class="text-[9px] text-gray-500 font-bold uppercase mb-1">ROE</p>
+                            <p id="valROE" class="text-base font-bold text-white leading-tight">---</p>
                         </div>
                     </div>
 
