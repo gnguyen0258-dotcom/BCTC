@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head><title>Test API</title></head>
+<body>
+    <div id="results"></div>
+    <script>
+        const apiKey = "AIzaSyCE6F1L5ts0TZ3PHhU95SM-dDeotHbUzT8";
+        
+        async function test(name, url, payload) {
+            const div = document.createElement('div');
+            div.id = name;
+            div.innerText = name + '...';
+            document.getElementById('results').appendChild(div);
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    div.innerText = name + ' ERROR: ' + JSON.stringify(data.error);
+                } else {
+                    div.innerText = name + ' SUCCESS';
+                }
+            } catch (e) {
+                div.innerText = name + ' CATCH: ' + e.message;
+            }
+        }
+
+        async function runTests() {
+            // Test 1: gemini-2.5-flash
+            await test('test1', 
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+                {
+                    systemInstruction: { parts: [{ text: "Hello" }] },
+                    contents: [{ role: "user", parts: [{ text: "Hi" }] }]
+                }
+            );
+
+            // Test 2: gemini-flash-latest
+            await test('test2', 
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`,
+                {
+                    contents: [{ role: "user", parts: [{ text: "Hi" }] }]
+                }
+            );
+        }
+
+        runTests();
+    </script>
+</body>
+</html>

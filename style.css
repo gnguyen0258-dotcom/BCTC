@@ -1,0 +1,81 @@
+/* Mobile Dashboard & Safe Area Utilities */
+:root {
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-top {
+    padding-top: var(--safe-top);
+}
+
+.safe-bottom {
+    padding-bottom: calc(var(--safe-bottom) + 8px);
+}
+
+@layer utilities {
+    .animate-fade-in {
+        animation: fadeIn 0.3s ease-out forwards;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+}
+
+/* Custom Scrollbar (for table) */
+::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #333333;
+    border-radius: 10px;
+}
+
+/* Input Styles */
+input, textarea {
+    -webkit-appearance: none;
+    border-radius: 12px;
+}
+
+input:focus, textarea:focus {
+    box-shadow: 0 0 0 1px #00F0FF;
+}
+
+/* Active Tab Styles (Bottom Nav) */
+.nav-tab.active i, .nav-tab.active span {
+    color: var(--active-color, #00F0FF);
+}
+
+/* Period Toggle Styles */
+.period-toggle.active {
+    background-color: #333333;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.period-toggle:not(.active) {
+    color: #6B7280;
+}
+
+/* Chat Message Styles */
+#chatMessages > div {
+    max-width: 90%;
+}
+
+/* Custom Active Colors for Tabs */
+[data-target="tab-bctc"].active { --active-color: #00F0FF; }
+[data-target="tab-recommend"].active { --active-color: #FBBF24; }
+[data-target="tab-ai-edu"].active { --active-color: #00F0FF; }
+[data-target="tab-ask-ai"].active { --active-color: #A855F7; }
