@@ -1,181 +1,218 @@
 // State management
 let currentSymbol = '';
-let currentPeriodType = 'Q'; // 'Q' for Quarter, 'Y' for Year
+let currentPeriodType = 'Q';
 let financialData = [];
 let chartInstance = null;
-
-    // DOM Elements
-const els = {
-    settingsBtn: document.getElementById('btnSettings'),
-    settingsPanel: document.getElementById('settingsPanel'),
-    closeSettingsBtn: document.getElementById('btnCloseSettings'),
-    tokenInput: document.getElementById('tokenInput'),
-    geminiKeyInput: document.getElementById('geminiKeyInput'),
-    saveTokenBtn: document.getElementById('btnSaveToken'),
-    tokenStatus: document.getElementById('tokenStatus'),
-    
-    // HARDCODED KEYS
-    HARDCODED_TOKEN: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IkdYdExONzViZlZQakdvNERWdjV4QkRITHpnSSIsImtpZCI6IkdYdExONzViZlZQakdvNERWdjV4QkRITHpnSSJ9.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmZpcmVhbnQudm4iLCJhdWQiOiJodHRwczovL2FjY291bnRzLmZpcmVhbnQudm4vcmVzb3VyY2VzIiwiZXhwIjoyMDc3MDg5NTA2LCJuYmYiOjE3NzcwODk1MDYsImNsaWVudF9pZCI6ImZpcmVhbnQud2ViIiwic2NvcGUiOlsib3BlbmlkIiwicHJvZmlsZSIsInJvbGVzIiwiZW1haWwiLCJhY2NvdW50cy1yZWFkIiwiYWNjb3VudHMtd3JpdGUiLCJvcmRlcnMtcmVhZCIsIm9yZGVycy13cml0ZSIsImNvbXBhbmllcy1yZWFkIiwiaW5kaXZpZHVhbHMtcmVhZCIsImZpbmFuY2UtcmVhZCIsInBvc3RzLXdyaXRlIiwicG9zdHMtcmVhZCIsInN5bWJvbHMtcmVhZCIsInVzZXItZGF0YS1yZWFkIiwidXNlci1kYXRhLXdyaXRlIiwidXNlcnMtcmVhZCIsInNlYXJjaCIsImFjYWRlbXktcmVhZCIsImFjYWRlbXktd3JpdGUiLCJibG9nLXJlYWQiLCJpbnZlc3RvcGVkaWEtcmVhZCJdLCJzdWIiOiIyNTAyZDMyMi0yNWM0LTQ3MjUtOGUyYS1hZTVmZjc2ZDYzMGYiLCJhdXRoX3RpbWUiOjE3NzcwODk0NzksImlkcCI6Imlkc3J2IiwibmFtZSI6ImduMTQ1MTNAZ21haWwuY29tIiwic2VjdXJpdHlfc3RhbXAiOiI0YmRlN2Y1MC01NzY2LTQ5ZjEtODQ5ZS02NWU4ZWRhYmJiN2EiLCJqdGkiOiI1NTdmM2EwMjQ1ZDNlMDU5NDQ5YTg3NDhkMGNhZWVkNiIsImFtciI6WyJwYXNzd29yZCJdfQ.SRaT4E0pgLhinp2LMxg5Nuizpx8owQWHVbZdxOLbYPwJcVyed6eL4FNMRoJ7bsOu3kehdaYEySZ2rUbcbtY-ghRMQ2XFPccVsUSbWJjIdD9gD1nnsD4HQcPOmFy0nxvWaJo_zW0UmyEm1KenJVjrXEJF5YvoeWVW6hEqx11lsk6oCzVdG9MFNZFMENUWbJcjy2V3zqQpJb5y_6_fKZGendH_T9dBHo_4cm5QozuDBGQTX7jeAYinYMDcJNMI8Ou26yevlCveXYkzIU5lxtSfN0DjUdWGdhqy0rn0P9yDRwT8qmyAeFE3ryCFpt0dFvOQbN_qPvM9nEQ_3b4sGeyirg',
-    HARDCODED_GEMINI: 'AIzaSyCxD787afacyFKnuCFzk8KQASNtG_z-ZMo',
-    
-    symbolSearch: document.getElementById('symbolSearch'),
-    searchBtn: document.getElementById('btnSearch'),
-    
-    appContent: document.getElementById('appContent'),
-    navTabs: document.querySelectorAll('.nav-tab'),
-    tabPanes: document.querySelectorAll('.tab-pane'),
-
-    // Welcome / Empty States
-    bctcEmptyState: document.getElementById('bctcEmptyState'),
-    loadingState: document.getElementById('loadingState'),
-    dataContent: document.getElementById('dataContent'),
-    
-    recEmptyState: document.getElementById('recEmptyState'),
-    recContent: document.getElementById('recContent'),
-    
-    companySymbol: document.getElementById('companySymbol'),
-    companyName: document.getElementById('companyName'),
-    periodToggles: document.querySelectorAll('.period-toggle'),
-    periodLabels: document.querySelectorAll('.period-label'),
-    
-    valRevenue: document.getElementById('valRevenue'),
-    groRevenue: document.getElementById('groRevenue'),
-    valProfit: document.getElementById('valProfit'),
-    groProfit: document.getElementById('groProfit'),
-    valGrossMargin: document.getElementById('valGrossMargin'),
-    valROE: document.getElementById('valROE'),
-    
-    mainChart: document.getElementById('mainChart'),
-    tableHead: document.getElementById('tableHead'),
-    tableBody: document.getElementById('tableBody'),
-    
-    aiScore: document.getElementById('aiScore'),
-    aiVerdict: document.getElementById('aiVerdict'),
-    aiHoldingPeriod: document.getElementById('aiHoldingPeriod'),
-    aiPE: document.getElementById('aiPE'),
-    aiSafety: document.getElementById('aiSafety'),
-    aiReasoning: document.getElementById('aiReasoning'),
-    scoreCircle: document.getElementById('scoreCircle'),
-
-    // AI Education elements
-    btnSelectFile: document.getElementById('btnSelectFile'),
-    fileInput: document.getElementById('fileInput'),
-    uploadPrompt: document.getElementById('uploadPrompt'),
-    previewArea: document.getElementById('previewArea'),
-    previewContainer: document.getElementById('previewContainer'),
-    btnAnalyzeImg: document.getElementById('btnAnalyzeImg'),
-    btnCancelImg: document.getElementById('btnCancelImg'),
-    aiAnalysisLoading: document.getElementById('aiAnalysisLoading'),
-    aiAnalysisResult: document.getElementById('aiAnalysisResult'),
-    aiAnalysisText: document.getElementById('aiAnalysisText'),
-
-    // Chatbot elements
-    chatMessages: document.getElementById('chatMessages'),
-    chatInput: document.getElementById('chatInput'),
-    btnSendChat: document.getElementById('btnSendChat'),
-    promptBtns: document.querySelectorAll('.prompt-btn')
-};
-
-// Chat history state
 let chatHistory = [];
+let isAnalyzingImage = false;
+let els = {}; 
 
 // Initialization
 function init() {
-    // Load saved token or use hardcoded
-    let savedToken = localStorage.getItem('fireant_token');
-    if (!savedToken) {
-        savedToken = els.HARDCODED_TOKEN;
-        localStorage.setItem('fireant_token', savedToken);
-    }
-    els.tokenInput.value = savedToken;
+    try {
+        console.log("FinaSight: Initializing App...");
+        // DOM Elements - Re-select inside init for absolute safety
+        els = {
+        settingsBtn: document.getElementById('btnSettings'),
+        settingsPanel: document.getElementById('settingsPanel'),
+        closeSettingsBtn: document.getElementById('btnCloseSettings'),
+        tokenInput: document.getElementById('tokenInput'),
+        geminiKeyInput: document.getElementById('geminiKeyInput'),
+        deepseekKeyInput: document.getElementById('deepseekKeyInput'),
+        saveTokenBtn: document.getElementById('btnSaveToken'),
+        tokenStatus: document.getElementById('tokenStatus'),
+        HARDCODED_TOKEN: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IkdYdExONzViZlZQakdvNERWdjV4QkRITHpnSSIsImtpZCI6IkdYdExONzViZlZQakdvNERWdjV4QkRITHpnSSJ9.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmZpcmVhbnQudm4iLCJhdWQiOiJodHRwczovL2FjY291bnRzLmZpcmVhbnQudm4vcmVzb3VyY2VzIiwiZXhwIjoyMDc3MDg5NTA2LCJuYmYiOjE3NzcwODk1MDYsImNsaWVudF9pZCI6ImZpcmVhbnQud2ViIiwic2NvcGUiOlsib3BlbmlkIiwicHJvZmlsZSIsInJvbGVzIiwiZW1haWwiLCJhY2NvdW50cy1yZWFkIiwiYWNjb3VudHMtd3JpdGUiLCJvcmRlcnMtcmVhZCIsIm9yZGVycy13cml0ZSIsImNvbXBhbmllcy1yZWFkIiwiaW5kaXZpZHVhbHMtcmVhZCIsImZpbmFuY2UtcmVhZCIsInBvc3RzLXdyaXRlIiwicG9zdHMtcmVhZCIsInN5bWJvbHMtcmVhZCIsInVzZXItZGF0YS1yZWFkIiwidXNlci1kYXRhLXdyaXRlIiwidXNlcnMtcmVhZCIsInNlYXJjaCIsImFjYWRlbXktcmVhZCIsImFjYWRlbXktd3JpdGUiLCJibG9nLXJlYWQiLCJpbnZlc3RvcGVkaWEtcmVhZCJdLCJzdWIiOiIyNTAyZDMyMi0yNWM0LTQ3MjUtOGUyYS1hZTVmZjc2ZDYzMGYiLCJhdXRoX3RpbWUiOjE3NzcwODk0NzksImlkcCI6Imlkc3J2IiwibmFtZSI6ImduMTQ1MTNAZ21haWwuY29tIiwic2VjdXJpdHlfc3RhbXAiOiI0YmRlN2Y1MC01NzY2LTQ5ZjEtODQ5ZS02NWU4ZWRhYmJiN2EiLCJqdGkiOiI1NTdmM2EwMjQ1ZDNlMDU5NDQ5YTg3NDhkMGNhZWVkNiIsImFtciI6WyJwYXNzd29yZCJdfQ.SRaT4E0pgLhinp2LMxg5Nuizpx8owQWHVbZdxOLbYPwJcVyed6eL4FNMRoJ7bsOu3kehdaYEySZ2rUbcbtY-ghRMQ2XFPccVsUSbWJjIdD9gD1nnsD4HQcPOmFy0nxvWaJo_zW0UmyEm1KenJVjrXEJF5YvoeWVW6hEqx11lsk6oCzVdG9MFNZFMENUWbJcjy2V3zqQpJb5y_6_fKZGendH_T9dBHo_4cm5QozuDBGQTX7jeAYinYMDcJNMI8Ou26yevlCveXYkzIU5lxtSfN0DjUdWGdhqy0rn0P9yDRwT8qmyAeFE3ryCFpt0dFvOQbN_qPvM9nEQ_3b4sGeyirg',
+        HARDCODED_DEEPSEEK: 'sk-67c521431f9c452b9194b2495375bcef',
+        HARDCODED_GEMINI: 'AIzaSyB67mS2xQd1PuENOwiBiPpf4-3ZAvtMWM8',
+        HARDCODED_GEMINI_2: 'sk-67c521431f9c452b9194b2495375bcef',
+        HARDCODED_OPENAI: 'sk-67c521431f9c452b9194b2495375bcef',
+        HARDCODED_OPENROUTER: 'sk-67c521431f9c452b9194b2495375bcef',
+        HARDCODED_GROQ: 'sk-67c521431f9c452b9194b2495375bcef',
+        HARDCODED_HF: 'sk-67c521431f9c452b9194b2495375bcef',
+        HARDCODED_XAI: 'sk-67c521431f9c452b9194b2495375bcef',
+        symbolSearch: document.getElementById('symbolSearch'),
+        searchBtn: document.getElementById('btnSearch'),
+        appContent: document.getElementById('appContent'),
+        navTabs: document.querySelectorAll('.nav-tab'),
+        tabPanes: document.querySelectorAll('.tab-pane'),
+        bctcEmptyState: document.getElementById('bctcEmptyState'),
+        loadingState: document.getElementById('loadingState'),
+        dataContent: document.getElementById('dataContent'),
+        recEmptyState: document.getElementById('recEmptyState'),
+        recContent: document.getElementById('recContent'),
+        companySymbol: document.getElementById('companySymbol'),
+        companyName: document.getElementById('companyName'),
+        periodToggles: document.querySelectorAll('.period-toggle'),
+        periodLabels: document.querySelectorAll('.period-label'),
+        valRevenue: document.getElementById('valRevenue'),
+        groRevenue: document.getElementById('groRevenue'),
+        valProfit: document.getElementById('valProfit'),
+        groProfit: document.getElementById('groProfit'),
+        valGrossMargin: document.getElementById('valGrossMargin'),
+        valROE: document.getElementById('valROE'),
+        mainChart: document.getElementById('mainChart'),
+        tableHead: document.getElementById('tableHead'),
+        tableBody: document.getElementById('tableBody'),
+        aiScore: document.getElementById('aiScore'),
+        aiVerdict: document.getElementById('aiVerdict'),
+        aiHoldingPeriod: document.getElementById('aiHoldingPeriod'),
+        aiPE: document.getElementById('aiPE'),
+        aiSafety: document.getElementById('aiSafety'),
+        aiReasoning: document.getElementById('aiReasoning'),
+        scoreCircle: document.getElementById('scoreCircle'),
+        btnSelectFile: document.getElementById('btnSelectFile'),
+        fileInput: document.getElementById('fileInput'),
+        uploadPrompt: document.getElementById('uploadPrompt'),
+        previewArea: document.getElementById('previewArea'),
+        previewContainer: document.getElementById('previewContainer'),
+        btnAnalyzeImg: document.getElementById('btnAnalyzeImg'),
+        btnCancelImg: document.getElementById('btnCancelImg'),
+        aiAnalysisLoading: document.getElementById('aiAnalysisLoading'),
+        aiAnalysisResult: document.getElementById('aiAnalysisResult'),
+        aiAnalysisText: document.getElementById('aiAnalysisText'),
+        chatMessages: document.getElementById('chatMessages'),
+        chatInput: document.getElementById('chatInput'),
+        btnSendChat: document.getElementById('btnSendChat'),
+        promptBtns: document.querySelectorAll('.prompt-btn'),
+        globalLoadingPulse: document.getElementById('globalLoadingPulse'),
+        globalLoadingDot: document.getElementById('globalLoadingDot'),
+        toastContainer: document.getElementById('toastContainer')
+    };
 
-    let savedGemini = localStorage.getItem('gemini_api_key');
-    // Force update if the saved key is empty OR if it matches the old leaked key
-    if (!savedGemini || savedGemini === 'AIzaSyCE6F1L5ts0TZ3PHhU95SM-dDeotHbUzT8') {
-        savedGemini = els.HARDCODED_GEMINI;
-        localStorage.setItem('gemini_api_key', savedGemini);
-    }
-    els.geminiKeyInput.value = savedGemini;
-
-    // Event Listeners
-    els.settingsBtn.addEventListener('click', toggleSettings);
-    els.closeSettingsBtn.addEventListener('click', toggleSettings);
-    els.saveTokenBtn.addEventListener('click', saveToken);
-    
-    els.searchBtn.addEventListener('click', handleSearch);
-    els.symbolSearch.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleSearch();
-    });
-
-    // Chatbot Event Listeners
-    els.btnSendChat.addEventListener('click', handleSendChat);
-    els.chatInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSendChat();
-        }
-    });
-    els.promptBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            els.chatInput.value = btn.textContent;
-            handleSendChat();
-        });
-    });
-
-    // Image Analysis Event Listeners
+    // Attach listeners with existence checks
+    if (els.settingsBtn) els.settingsBtn.addEventListener('click', toggleSettings);
+    if (els.closeSettingsBtn) els.closeSettingsBtn.addEventListener('click', toggleSettings);
+    if (els.saveTokenBtn) els.saveTokenBtn.addEventListener('click', saveToken);
+    if (els.searchBtn) els.searchBtn.addEventListener('click', handleSearch);
+    if (els.symbolSearch) els.symbolSearch.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSearch(); });
+    if (els.btnSendChat) els.btnSendChat.addEventListener('click', handleSendChat);
+    if (els.chatInput) els.chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendChat(); } });
+    if (els.promptBtns) els.promptBtns.forEach(btn => { btn.addEventListener('click', () => { els.chatInput.value = btn.textContent; handleSendChat(); }); });
     if (els.btnSelectFile) {
         els.btnSelectFile.addEventListener('click', () => els.fileInput.click());
-        els.fileInput.addEventListener('change', handleFileSelect);
-        els.btnAnalyzeImg.addEventListener('click', handleAnalyzeImage);
-        els.btnCancelImg.addEventListener('click', resetAIUpload);
+        if (els.fileInput) els.fileInput.addEventListener('change', handleFileSelect);
+        if (els.btnAnalyzeImg) els.btnAnalyzeImg.addEventListener('click', handleAnalyzeImage);
+        if (els.btnCancelImg) els.btnCancelImg.addEventListener('click', resetAIUpload);
+    }
+    if (els.navTabs) {
+        els.navTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                els.navTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const target = tab.dataset.target;
+                els.tabPanes.forEach(pane => {
+                    if (pane.id === target) { pane.classList.remove('hidden'); pane.classList.add('flex'); }
+                    else { pane.classList.add('hidden'); pane.classList.remove('flex'); }
+                });
+                const chatInputArea = document.getElementById('chatInputArea');
+                if (chatInputArea) {
+                    if (target === 'tab-ask-ai') { chatInputArea.classList.remove('hidden'); chatInputArea.classList.add('flex'); }
+                    else { chatInputArea.classList.add('hidden'); chatInputArea.classList.remove('flex'); }
+                }
+                localStorage.setItem('active_tab', target);
+            });
+        });
     }
 
-    els.navTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            // Update active styling
-            els.navTabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            
-            // Show target pane
-            const target = tab.dataset.target;
-            els.tabPanes.forEach(pane => {
-                if (pane.id === target) {
-                    pane.classList.remove('hidden');
-                    pane.classList.add('flex');
-                } else {
-                    pane.classList.add('hidden');
-                    pane.classList.remove('flex');
-                }
+    // Load saved data
+    let savedToken = localStorage.getItem('fireant_token') || els.HARDCODED_TOKEN;
+    localStorage.setItem('fireant_token', savedToken);
+    if (els.tokenInput) els.tokenInput.value = savedToken;
+
+    let savedGemini = localStorage.getItem('gemini_api_key') || els.HARDCODED_GEMINI;
+    localStorage.setItem('gemini_api_key', savedGemini);
+    if (els.geminiKeyInput) els.geminiKeyInput.value = savedGemini;
+
+    let savedDeepSeek = localStorage.getItem('deepseek_api_key') || els.HARDCODED_DEEPSEEK;
+    localStorage.setItem('deepseek_api_key', savedDeepSeek);
+    if (els.deepseekKeyInput) els.deepseekKeyInput.value = savedDeepSeek;
+
+    // Restore chat history
+    const savedHistory = localStorage.getItem('saved_chat_history');
+    const savedHtml = localStorage.getItem('saved_chat_html');
+    if (savedHistory && savedHtml) {
+        try {
+            chatHistory = JSON.parse(savedHistory);
+            if (els.chatMessages) {
+                els.chatMessages.innerHTML = savedHtml;
+                setTimeout(() => { els.chatMessages.scrollTop = els.chatMessages.scrollHeight; }, 100);
+            }
+        } catch (e) { console.error(e); }
+    }
+
+    // Restore BCTC Data
+    const savedSymbol = localStorage.getItem('saved_symbol');
+    const savedData = localStorage.getItem('saved_financial_data');
+    if (savedSymbol && savedData) {
+        try {
+            currentSymbol = savedSymbol;
+            currentPeriodType = localStorage.getItem('saved_period') || 'Q';
+            financialData = JSON.parse(savedData);
+            if (els.bctcEmptyState) els.bctcEmptyState.classList.add('hidden');
+            if (els.recEmptyState) els.recEmptyState.classList.add('hidden');
+            if (els.companySymbol) els.companySymbol.textContent = currentSymbol;
+            if (els.companyName) els.companyName.textContent = `Báo cáo tài chính ${currentSymbol}`;
+            if (els.periodLabels) els.periodLabels.forEach(el => el.textContent = currentPeriodType === 'Q' ? 'Quý' : 'Năm');
+            if (els.periodToggles) {
+                els.periodToggles.forEach(b => {
+                    b.classList.remove('active');
+                    if (b.dataset.type === currentPeriodType) b.classList.add('active');
+                });
+            }
+            renderDashboard(financialData.slice(-5), financialData);
+            const savedRecData = localStorage.getItem('saved_ai_rec_data');
+            if (savedRecData) { renderAIRecommendationUI(JSON.parse(savedRecData)); }
+            else { fetchAIRecommendation(currentSymbol, financialData[financialData.length - 1], financialData[financialData.length - 2]); }
+            if (els.dataContent) els.dataContent.classList.remove('hidden');
+            if (els.recContent) els.recContent.classList.remove('hidden');
+        } catch(e) {}
+    }
+
+    // Restore Image Analysis Data
+    const savedAnalysis = localStorage.getItem('saved_img_analysis_html');
+    const savedPreview = localStorage.getItem('saved_img_preview_html');
+    const savedFiles = localStorage.getItem('saved_img_files_data');
+    if (savedAnalysis && savedPreview && savedFiles) {
+        try {
+            selectedFilesData = JSON.parse(savedFiles);
+            if (els.previewContainer) els.previewContainer.innerHTML = savedPreview;
+            if (els.aiAnalysisText) els.aiAnalysisText.innerHTML = savedAnalysis;
+            if (els.uploadPrompt) els.uploadPrompt.classList.add('hidden');
+            if (els.previewArea) {
+                els.previewArea.classList.remove('hidden');
+                els.previewArea.classList.add('flex');
+            }
+            if (els.aiAnalysisResult) els.aiAnalysisResult.classList.remove('hidden');
+        } catch(e) {}
+    }
+
+    // Restore Active Tab
+    const savedTab = localStorage.getItem('active_tab');
+    if (savedTab) {
+        const tabBtn = document.querySelector(`.nav-tab[data-target="${savedTab}"]`);
+        if (tabBtn) tabBtn.click();
+    }
+
+    if (els.periodToggles) {
+        els.periodToggles.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                els.periodToggles.forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentPeriodType = e.target.dataset.type;
+                if (currentSymbol) fetchData(currentSymbol, currentPeriodType);
             });
-
-            // Special handling for Chat Input Area
-            const chatInputArea = document.getElementById('chatInputArea');
-            if (chatInputArea) {
-                if (target === 'tab-ask-ai') {
-                    chatInputArea.classList.remove('hidden');
-                    chatInputArea.classList.add('flex');
-                } else {
-                    chatInputArea.classList.add('hidden');
-                    chatInputArea.classList.remove('flex');
-                }
-            }
         });
-    });
+    }
 
-    els.periodToggles.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            els.periodToggles.forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
-            currentPeriodType = e.target.dataset.type;
-            if (currentSymbol) {
-                fetchData(currentSymbol, currentPeriodType);
-            }
-        });
-    });
-
-    // Chart global defaults
-    Chart.defaults.color = '#9CA3AF';
-    Chart.defaults.font.family = 'Inter, sans-serif';
+    if (window.Chart) {
+        Chart.defaults.color = '#9CA3AF';
+        Chart.defaults.font.family = 'Inter, sans-serif';
+    }
+    console.log("FinaSight: Initialization Complete.");
+    } catch (e) {
+        console.error("CRITICAL INIT ERROR:", e);
+        alert("Lỗi khởi tạo hệ thống: " + e.message + "\n\nXin vui lòng làm mới trang (F5) hoặc xóa cache.");
+    }
 }
 
 // UI Handlers
@@ -187,6 +224,7 @@ function toggleSettings() {
 function saveToken() {
     const token = els.tokenInput.value.trim();
     const gemini = els.geminiKeyInput.value.trim();
+    const deepseek = els.deepseekKeyInput.value.trim();
     
     if (token) {
         let finalToken = token;
@@ -203,6 +241,12 @@ function saveToken() {
         localStorage.setItem('gemini_api_key', gemini);
     } else {
         localStorage.removeItem('gemini_api_key');
+    }
+
+    if (deepseek) {
+        localStorage.setItem('deepseek_api_key', deepseek);
+    } else {
+        localStorage.removeItem('deepseek_api_key');
     }
     
     els.tokenStatus.textContent = 'Đã lưu Cấu Hình thành công!';
@@ -271,11 +315,22 @@ async function fetchData(symbol, type) {
         const displayData = financialData.slice(-5);
         
         renderDashboard(displayData, financialData);
-        calculateRecommendation(financialData[financialData.length - 1], financialData[financialData.length - 2]);
+        
+        // Fetch AI recommendation asynchronously
+        fetchAIRecommendation(currentSymbol, financialData[financialData.length - 1], financialData[financialData.length - 2]).then(data => {
+            if (data) {
+                localStorage.setItem('saved_ai_rec_data', JSON.stringify(data));
+            }
+        });
         
         els.loadingState.classList.add('hidden');
         els.dataContent.classList.remove('hidden');
         els.recContent.classList.remove('hidden');
+        
+        // Save state to local storage
+        localStorage.setItem('saved_symbol', currentSymbol);
+        localStorage.setItem('saved_period', currentPeriodType);
+        localStorage.setItem('saved_financial_data', JSON.stringify(financialData));
         
     } catch (error) {
         els.loadingState.classList.add('hidden');
@@ -452,7 +507,7 @@ function renderChart(data) {
 
 function renderTable(data) {
     // Setup Headers
-    let headHtml = '<th class="px-4 py-3 font-medium">Chỉ tiêu (Tỷ VNĐ)</th>';
+    let headHtml = '<th class="sticky-col px-4 py-3 font-medium">Chỉ tiêu (Tỷ VNĐ)</th>';
     data.forEach(d => {
         headHtml += `<th class="px-4 py-3 font-medium text-right">${getLabel(d, currentPeriodType)}</th>`;
     });
@@ -472,7 +527,7 @@ function renderTable(data) {
     let bodyHtml = '';
     metrics.forEach(m => {
         bodyHtml += `<tr class="hover:bg-dark-bg/50 transition">`;
-        bodyHtml += `<td class="px-4 py-3 text-white">${m.name}</td>`;
+        bodyHtml += `<td class="sticky-col px-4 py-3 text-white">${m.name}</td>`;
         data.forEach(d => {
             let val = d && d.financialValues ? getProp(d.financialValues, m.keys) : undefined;
             let formatted = '-';
@@ -490,106 +545,163 @@ function renderTable(data) {
 // -----------------------------------------------------
 // AI RECOMMENDATION LOGIC
 // -----------------------------------------------------
-function calculateRecommendation(latest, previous) {
-    if (!latest) return;
-    
-    // Extract base metrics
+// -----------------------------------------------------
+// AI RECOMMENDATION LOGIC (REAL-TIME GENERATIVE AI)
+// -----------------------------------------------------
+async function fetchAIRecommendation(symbol, latest, previous) {
+    els.aiVerdict.textContent = "Đang phân tích thời gian thực...";
+    els.aiVerdict.className = "text-lg font-bold text-gray-400 leading-tight animate-pulse";
+    els.scoreCircle.setAttribute('stroke', '#374151');
+    els.aiScore.textContent = "...";
+    els.aiHoldingPeriod.textContent = "---";
+    els.aiPE.textContent = "---";
+    els.aiSafety.textContent = "---";
+    els.aiReasoning.innerHTML = '<li class="text-gray-400 animate-pulse">AI đang phân tích báo cáo và vĩ mô...</li>';
+
+    const apiKey = localStorage.getItem('gemini_api_key') || els.HARDCODED_GEMINI;
+    if (!apiKey) {
+        renderAIError("Vui lòng nhập Gemini API Key trong Cài đặt");
+        return null;
+    }
+
     const getFin = (item, keysArr) => item && item.financialValues ? getProp(item.financialValues, keysArr) : undefined;
     
-    const pe = latest.PE || getFin(latest, ['PE']);
-    const roe = getFin(latest, ['ROE']);
-    const grossMargin = getFin(latest, ['GrossMargin']);
-    
-    let score = 0;
-    let reasons = [];
-    let holding = 'Trung - Dài hạn (6-12 tháng)';
-    let verdict = 'Đứng ngoài';
-    let verdictClass = 'text-gray-400';
+    let lPro = getFin(latest, ['ParentCompanyShareholderProfitAfterTax', 'ProfitAfterTax']) || 0;
+    let pPro = getFin(previous, ['ParentCompanyShareholderProfitAfterTax', 'ProfitAfterTax']) || 0;
+    let roe = getFin(latest, ['ROE']) || 0;
+    let pe = latest.PE || getFin(latest, ['PE']) || 0;
+    let grossMargin = getFin(latest, ['GrossMargin']) || 0;
 
-    // 1. Tăng trưởng Lợi nhuận (Profit Growth)
-    let proGrowth = 0;
-    if (previous) {
-        let lPro = getFin(latest, ['ParentCompanyShareholderProfitAfterTax', 'ProfitAfterTax']);
-        let pPro = getFin(previous, ['ParentCompanyShareholderProfitAfterTax', 'ProfitAfterTax']);
-        if (lPro && pPro) {
-            proGrowth = ((lPro - pPro) / Math.abs(pPro)) * 100;
-            if (proGrowth > 15) {
-                score += 30;
-                reasons.push(`<li class="text-finance-up"><i class="fa-solid fa-check-circle mr-2"></i>Tăng trưởng lợi nhuận cực tốt (${proGrowth.toFixed(1)}%)</li>`);
-                holding = 'Ngắn - Trung hạn (3-6 tháng)'; // Đánh sóng tăng trưởng
-            } else if (proGrowth > 0) {
-                score += 15;
-                reasons.push(`<li class="text-finance-up"><i class="fa-solid fa-check-circle mr-2"></i>Lợi nhuận có sự tăng trưởng nhẹ (${proGrowth.toFixed(1)}%)</li>`);
-            } else {
-                reasons.push(`<li class="text-finance-down"><i class="fa-solid fa-times-circle mr-2"></i>Lợi nhuận đang suy giảm (${proGrowth.toFixed(1)}%)</li>`);
-            }
-        }
+    const today = new Date();
+    const dateString = today.toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+    const prompt = `Bạn là một chuyên gia tài chính AI. Hôm nay là ${dateString}.
+Hãy phân tích mã cổ phiếu ${symbol} dựa trên các thông số BCTC gần nhất:
+- Tăng trưởng LNST: từ ${formatBillion(pPro)} tỷ lên ${formatBillion(lPro)} tỷ.
+- Hiệu suất ROE: ${(roe*100).toFixed(1)}%
+- Định giá P/E: ${pe.toFixed(1)}
+- Biên lợi nhuận gộp: ${(grossMargin*100).toFixed(1)}%
+
+Trách nhiệm của bạn: Đánh giá xem với tình hình vĩ mô HIỆN TẠI của Việt Nam và thế giới, các chỉ số này của ${symbol} là Tốt hay Xấu.
+Bạn PHẢI trả về ĐÚNG DUY NHẤT 1 ĐOẠN JSON CHUẨN (không bọc trong markdown, không có text dư thừa nào), có cấu trúc sau:
+{
+  "score": <Số nguyên 0 đến 100>,
+  "verdict": "<TÍCH CỰC MUA VÀO / NẮM GIỮ / ĐỨNG NGOÀI>",
+  "holdingPeriod": "<Ví dụ: Ngắn hạn (3-6 tháng)>",
+  "peValuation": "<Đắt / Hợp lý / Rẻ>",
+  "safetyMargin": "<Cao / Trung bình / Thấp>",
+  "reasons": [
+    { "type": "up", "text": "Lý do tích cực 1" },
+    { "type": "down", "text": "Lý do tiêu cực 1" }
+  ]
+}
+Chú ý: field "type" chỉ được phép là "up" (tích cực), "down" (tiêu cực) hoặc "neutral" (trung lập). Trả về JSON hợp lệ.`;
+
+    const deepseekApiKey = localStorage.getItem('deepseek_api_key') || els.HARDCODED_DEEPSEEK;
+    if (!deepseekApiKey) {
+        renderAIError("Vui lòng nhập DeepSeek API Key!");
+        return null;
     }
 
-    // 2. Hiệu quả hoạt động (ROE)
-    if (roe) {
-        if (roe > 0.20) { // ROE > 20%
-            score += 30;
-            reasons.push(`<li class="text-finance-up"><i class="fa-solid fa-check-circle mr-2"></i>Hiệu suất sinh lời trên vốn (ROE) xuất sắc (${(roe*100).toFixed(1)}%)</li>`);
-        } else if (roe > 0.12) {
-            score += 15;
-            reasons.push(`<li class="text-white"><i class="fa-solid fa-minus-circle text-gray-400 mr-2"></i>ROE ở mức khá (${(roe*100).toFixed(1)}%)</li>`);
-        } else {
-            reasons.push(`<li class="text-finance-down"><i class="fa-solid fa-times-circle mr-2"></i>ROE thấp, hiệu quả sử dụng vốn chưa tốt</li>`);
-        }
+    let jsonString = "";
+    let lastError = "";
+    try {
+        jsonString = await callDeepSeekDirect(deepseekApiKey, prompt);
+    } catch (e) {
+        lastError = e.message;
+        console.warn(`DeepSeek failed:`, e);
     }
 
-    // 3. Biên an toàn (Định giá P/E)
-    let safetyStr = 'Khó xác định';
-    if (pe) {
-        if (pe < 10 && pe > 0) {
-            score += 30;
-            safetyStr = 'Cao (Đang định giá rẻ)';
-            reasons.push(`<li class="text-finance-up"><i class="fa-solid fa-check-circle mr-2"></i>Định giá P/E cực hấp dẫn (${pe.toFixed(1)}), có biên an toàn lớn</li>`);
-            holding = 'Dài hạn (1-3 năm)'; // Đầu tư giá trị
-        } else if (pe < 15 && pe > 0) {
-            score += 15;
-            safetyStr = 'Trung bình';
-            reasons.push(`<li class="text-white"><i class="fa-solid fa-minus-circle text-gray-400 mr-2"></i>P/E ở mức hợp lý (${pe.toFixed(1)})</li>`);
-        } else if (pe >= 15) {
-            safetyStr = 'Thấp (Đã phản ánh vào giá)';
-            reasons.push(`<li class="text-finance-down"><i class="fa-solid fa-times-circle mr-2"></i>Định giá P/E khá cao (${pe.toFixed(1)})</li>`);
-        }
+    if (!jsonString) {
+        renderAIError("Lỗi: " + lastError || "Không thể kết nối đến bất kỳ hệ thống AI nào.");
+        return null;
     }
 
-    // 4. Biên lợi nhuận
-    if (grossMargin && grossMargin > 0.25) {
-        score += 10;
-        reasons.push(`<li class="text-finance-up"><i class="fa-solid fa-check-circle mr-2"></i>Lợi thế cạnh tranh tốt (Biên LN gộp cao)</li>`);
+    try {
+        // Clean JSON string in case it has markdown block
+        jsonString = jsonString.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const data = JSON.parse(jsonString);
+        renderAIRecommendationUI(data);
+        return data;
+    } catch (e) {
+        renderAIError("Lỗi phân giải dữ liệu AI. Vui lòng thử lại.");
+        console.error("JSON Error:", e, "Raw output:", jsonString);
+        return null;
     }
+}
 
-    // Final Verdict
-    if (score >= 70) {
-        verdict = 'TÍCH CỰC MUA VÀO';
-        verdictClass = 'text-brand';
-        els.scoreCircle.setAttribute('stroke', '#00F0FF');
-    } else if (score >= 40) {
-        verdict = 'NẮM GIỮ / THEO DÕI';
-        verdictClass = 'text-yellow-400';
-        els.scoreCircle.setAttribute('stroke', '#FBBF24');
-    } else {
-        verdict = 'ĐỨNG NGOÀI';
-        verdictClass = 'text-finance-down';
-        els.scoreCircle.setAttribute('stroke', '#FF1744');
-        holding = 'Chưa khuyến nghị tham gia';
-    }
+async function callDeepSeekDirect(apiKey, prompt) {
+    const response = await fetch('https://api.deepseek.com/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+            model: 'deepseek-chat',
+            messages: [{ role: 'user', content: prompt }]
+        })
+    });
+    if (!response.ok) throw new Error("DeepSeek API error");
+    const result = await response.json();
+    return result.choices[0].message.content;
+}
 
-    // Update UI
+function renderAIError(msg) {
+    els.aiVerdict.textContent = "Lỗi Phân Tích";
+    els.aiVerdict.className = "text-lg font-bold text-red-500 leading-tight";
+    els.scoreCircle.setAttribute('stroke', '#EF4444');
+    els.aiScore.textContent = "!";
+    els.aiReasoning.innerHTML = `<li class="text-red-400"><i class="fa-solid fa-triangle-exclamation mr-2"></i>${msg}</li>`;
+}
+
+function renderAIRecommendationUI(data) {
+    const score = parseInt(data.score) || 0;
     els.aiScore.textContent = score;
+
+    let verdictClass = 'text-gray-400';
+    let strokeColor = '#9CA3AF';
+
+    if (score >= 70) {
+        verdictClass = 'text-brand';
+        strokeColor = '#00F0FF';
+    } else if (score >= 40) {
+        verdictClass = 'text-yellow-400';
+        strokeColor = '#FBBF24';
+    } else {
+        verdictClass = 'text-red-500';
+        strokeColor = '#EF4444';
+    }
+
+    els.aiVerdict.textContent = data.verdict || "Không xác định";
+    els.aiVerdict.className = `text-lg font-bold mt-1 ${verdictClass} leading-tight`;
+    els.scoreCircle.setAttribute('stroke', strokeColor);
+    
+    // Animate score circle
     els.scoreCircle.style.strokeDasharray = `${score}, 100`;
-    els.aiVerdict.textContent = verdict;
-    els.aiVerdict.className = `text-xl font-bold mt-1 ${verdictClass}`;
-    
-    els.aiHoldingPeriod.textContent = holding;
-    els.aiPE.textContent = pe ? pe.toFixed(2) : 'Không có DL';
-    els.aiSafety.textContent = safetyStr;
-    
-    els.aiReasoning.innerHTML = reasons.length ? reasons.join('') : '<li class="text-gray-400">Không đủ dữ liệu để đánh giá</li>';
+
+    els.aiHoldingPeriod.textContent = data.holdingPeriod || "---";
+    els.aiPE.textContent = data.peValuation || "---";
+    els.aiSafety.textContent = data.safetyMargin || "---";
+
+    let reasonsHtml = '';
+    if (data.reasons && Array.isArray(data.reasons)) {
+        data.reasons.forEach(r => {
+            let icon = '<i class="fa-solid fa-minus-circle text-gray-400 mr-2"></i>';
+            let tClass = 'text-white';
+            
+            if (r.type === 'up') {
+                icon = '<i class="fa-solid fa-check-circle text-finance-up mr-2"></i>';
+                tClass = 'text-finance-up';
+            } else if (r.type === 'down') {
+                icon = '<i class="fa-solid fa-times-circle text-finance-down mr-2"></i>';
+                tClass = 'text-finance-down';
+            }
+            
+            reasonsHtml += `<li class="${tClass}">${icon} ${r.text}</li>`;
+        });
+    }
+    els.aiReasoning.innerHTML = reasonsHtml;
 }
 
 // -----------------------------------------------------
@@ -651,10 +763,15 @@ function resetAIUpload() {
     els.previewArea.classList.remove('flex');
     if (els.previewContainer) els.previewContainer.innerHTML = '';
     els.aiAnalysisResult.classList.add('hidden');
+    
+    // Clear saved image state
+    localStorage.removeItem('saved_img_analysis_html');
+    localStorage.removeItem('saved_img_preview_html');
+    localStorage.removeItem('saved_img_files_data');
 }
 
 async function handleAnalyzeImage() {
-    const apiKey = localStorage.getItem('gemini_api_key');
+    const apiKey = localStorage.getItem('gemini_api_key') || els.HARDCODED_GEMINI;
     if (!apiKey) {
         alert("Vui lòng nhập Gemini API Key trong phần Cài đặt!");
         toggleSettings();
@@ -668,63 +785,220 @@ async function handleAnalyzeImage() {
     els.aiAnalysisLoading.classList.remove('hidden');
     els.aiAnalysisResult.classList.add('hidden');
 
+    // Global loading on
+    isAnalyzingImage = true;
+    if (els.globalLoadingPulse) els.globalLoadingPulse.classList.remove('hidden');
+    if (els.globalLoadingDot) els.globalLoadingDot.classList.remove('hidden');
+
     try {
         const response = await callGeminiAI(apiKey, selectedFilesData);
         displayAIAnalysis(response);
-    } catch (error) {
-        let errMsg = error.message;
-        if (errMsg.toLowerCase().includes("api key") || errMsg.toLowerCase().includes("leaked") || errMsg.toLowerCase().includes("invalid")) {
-            errMsg = "Khóa API Gemini mặc định đã lỗi. Vui lòng nhập Key của bạn trong phần Cài đặt (⚙️).";
+        
+        // If user is not on the education tab, show a toast
+        const currentTab = document.querySelector('.nav-tab.active').dataset.target;
+        if (currentTab !== 'tab-ai-edu') {
+            showToast("✨ Phân tích hoàn tất!", "Click để xem kết quả phân tích tài liệu.", () => {
+                const eduTab = document.querySelector('[data-target="tab-ai-edu"]');
+                if (eduTab) eduTab.click();
+            });
         }
-        alert("Lỗi khi phân tích: " + errMsg);
+    } catch (error) {
+        showToast("❌ Lỗi phân tích", error.message);
         els.previewArea.classList.remove('hidden');
         els.previewArea.classList.add('flex');
     } finally {
+        isAnalyzingImage = false;
         els.aiAnalysisLoading.classList.add('hidden');
+        if (els.globalLoadingPulse) els.globalLoadingPulse.classList.add('hidden');
+        if (els.globalLoadingDot) els.globalLoadingDot.classList.add('hidden');
     }
 }
 
+function showToast(title, msg, callback = null) {
+    if (!els.toastContainer) return;
+    
+    const toast = document.createElement('div');
+    toast.className = "bg-dark-card border border-brand/30 shadow-[0_8px_30px_rgb(0,0,0,0.5)] rounded-2xl p-4 flex items-center gap-4 pointer-events-auto animate-fade-in translate-y-0 transition-all cursor-pointer active:scale-95";
+    toast.innerHTML = `
+        <div class="w-10 h-10 bg-brand/10 rounded-full flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-bell text-brand"></i>
+        </div>
+        <div class="flex-1">
+            <h4 class="text-[11px] font-bold text-white">${title}</h4>
+            <p class="text-[9px] text-gray-400 mt-0.5">${msg}</p>
+        </div>
+        <i class="fa-solid fa-chevron-right text-gray-600 text-xs"></i>
+    `;
+    
+    if (callback) toast.onclick = () => {
+        callback();
+        toast.remove();
+    };
+    else toast.onclick = () => toast.remove();
+    
+    els.toastContainer.appendChild(toast);
+    
+    // Auto remove after 5s
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.classList.add('opacity-0', '-translate-y-4');
+            setTimeout(() => toast.remove(), 300);
+        }
+    }, 5000);
+}
+
 async function callGeminiAI(apiKey, filesData) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    const today = new Date();
+    const dateString = today.toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     
-    const prompt = `Bạn là một chuyên gia phân tích tài chính cao cấp tại Việt Nam. 
+    const prompt = `Bạn là một chuyên gia phân tích tài chính cao cấp tại Việt Nam. Hôm nay là ${dateString}. 
 Hãy đọc tài liệu/hình ảnh báo cáo tài chính này và thực hiện các yêu cầu sau để giúp tôi học hỏi:
-1. Giải thích ý nghĩa của các con số quan trọng trong tài liệu (Doanh thu, Lợi nhuận, Nợ, Tồn kho... tùy theo dữ liệu có trong tệp).
-2. Chỉ ra các "Dấu hiệu rủi ro" tiềm ẩn (nếu có) hoặc "Điểm sáng" tích cực.
+1. Giải thích ý nghĩa của các con số quan trọng trong tài liệu.
+2. Chỉ ra các "Dấu hiệu rủi ro" tiềm ẩn hoặc "Điểm sáng" tích cực.
 3. Phân tích cơ hội đầu tư dựa trên dữ liệu này.
-4. Đưa ra 1 bài học kinh nghiệm ngắn gọn để tôi có thể tự áp dụng khi đọc các BCTC khác.
+4. Đưa ra 1 bài học kinh nghiệm ngắn gọn.
 
-Hãy trình bày bằng tiếng Việt, chia các mục rõ ràng bằng tiêu đề và gạch đầu dòng. Dùng ngôn ngữ dễ hiểu cho người mới học.`;
+Hãy trình bày bằng tiếng Việt, chia các mục rõ ràng bằng tiêu đề và gạch đầu dòng.`;
 
-    const parts = [
-        { text: prompt }
-    ];
-    
-    filesData.forEach(file => {
-        parts.push({
-            inline_data: { mime_type: file.mimeType, data: file.base64 }
+    const contents = [{
+        parts: [
+            { text: prompt },
+            ...filesData.map(file => ({
+                inlineData: {
+                    mimeType: file.mimeType,
+                    data: file.base64
+                }
+            }))
+        ]
+    }];
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: contents })
+    });
+
+    if (!response.ok) throw new Error("Lỗi API Gemini");
+    const result = await response.json();
+    return result.candidates[0].content.parts[0].text;
+}
+
+async function callOpenAIChat(history) {
+    const today = new Date();
+    const dateString = today.toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const systemInstruction = `Bạn là Cố vấn Tài chính AI hàng đầu Việt Nam. Hôm nay là ${dateString}. 
+Mục tiêu của bạn là giúp người dùng cá nhân đưa ra quyết định đầu tư chứng khoán chính xác dựa trên tình hình thực tế hiện tại.
+
+HƯỚNG DẪN QUAN TRỌNG:
+1. Khi người dùng yêu cầu "Gợi ý mã cổ phiếu":
+   - Bạn PHẢI tự động đánh giá tình hình vĩ mô thế giới & Việt Nam hiện tại.
+   - Dựa vào đó, chọn ra các nhóm ngành hưởng lợi (vi mô).
+   - Sau đó gợi ý cụ thể 2-3 mã cổ phiếu tốt nhất.
+   - Nêu rõ vùng giá mua, vùng giá chốt lời, và thời điểm nắm giữ (ngắn/trung/dài hạn).
+   - Tóm tắt ý chính bằng các gạch đầu dòng ngắn gọn, dễ hiểu.
+2. Nếu người dùng hỏi về "Mã đang xem": Hãy sử dụng dữ liệu [Bối cảnh hệ thống] được đính kèm ngầm trong câu hỏi để trả lời định giá, cơ hội, rủi ro cụ thể cho mã đó.
+3. Luôn cảnh báo rủi ro ngắn gọn ở cuối: "Lưu ý: Mọi tư vấn chỉ mang tính tham khảo...".
+
+Trình bày bằng tiếng Việt, thân thiện, súc tích, dùng Markdown (in đậm, danh sách) để làm nổi bật thông tin.`;
+
+    const messages = [{ role: 'system', content: systemInstruction }];
+    history.forEach(item => {
+        messages.push({
+            role: item.role === 'model' ? 'assistant' : 'user',
+            content: item.parts[0].text
         });
     });
 
-    const payload = {
-        contents: [{
-            parts: parts
-        }]
-    };
-
-    const response = await fetch(url, {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${els.HARDCODED_OPENAI}`
+        },
+        body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            messages: messages
+        })
     });
 
-    if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error?.message || "Lỗi API Gemini");
-    }
+    if (!response.ok) throw new Error("OpenAI API Error");
+    const data = await response.json();
+    return data.choices[0].message.content;
+}
 
-    const result = await response.json();
-    return result.candidates[0].content.parts[0].text;
+async function callGroqChat(history) {
+    const today = new Date();
+    const dateString = today.toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const systemInstruction = `Bạn là Cố vấn Tài chính AI hàng đầu Việt Nam. Hôm nay là ${dateString}. 
+Mục tiêu của bạn là giúp người dùng cá nhân đưa ra quyết định đầu tư chứng khoán chính xác dựa trên tình hình thực tế hiện tại.
+
+HƯỚNG DẪN QUAN TRỌNG:
+1. Khi người dùng yêu cầu "Gợi ý mã cổ phiếu":
+   - Bạn PHẢI tự động đánh giá tình hình vĩ mô thế giới & Việt Nam hiện tại.
+   - Dựa vào đó, chọn ra các nhóm ngành hưởng lợi (vi mô).
+   - Sau đó gợi ý cụ thể 2-3 mã cổ phiếu tốt nhất.
+   - Nêu rõ vùng giá mua, vùng giá chốt lời, và thời điểm nắm giữ (ngắn/trung/dài hạn).
+   - Tóm tắt ý chính bằng các gạch đầu dòng ngắn gọn, dễ hiểu.
+2. Nếu người dùng hỏi về "Mã đang xem": Hãy sử dụng dữ liệu [Bối cảnh hệ thống] được đính kèm ngầm trong câu hỏi để trả lời định giá, cơ hội, rủi ro cụ thể cho mã đó.
+3. Luôn cảnh báo rủi ro ngắn gọn ở cuối: "Lưu ý: Mọi tư vấn chỉ mang tính tham khảo...".
+
+Trình bày bằng tiếng Việt, thân thiện, súc tích, dùng Markdown (in đậm, danh sách) để làm nổi bật thông tin.`;
+
+    const messages = [{ role: 'system', content: systemInstruction }];
+    history.forEach(item => {
+        messages.push({
+            role: item.role === 'model' ? 'assistant' : 'user',
+            content: item.parts[0].text
+        });
+    });
+
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${els.HARDCODED_GROQ}`
+        },
+        body: JSON.stringify({
+            model: 'llama3-70b-8192',
+            messages: messages
+        })
+    });
+
+    if (!response.ok) throw new Error("Groq API Error");
+    const data = await response.json();
+    return data.choices[0].message.content;
+}
+
+async function callHFChat(history) {
+    const today = new Date();
+    const dateString = today.toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const systemInstruction = `Bạn là Cố vấn Tài chính AI hàng đầu Việt Nam. Hôm nay là ${dateString}. 
+Mục tiêu của bạn là giúp người dùng cá nhân đưa ra quyết định đầu tư chứng khoán chính xác dựa trên tình hình thực tế hiện tại. Trình bày bằng tiếng Việt, Markdown.`;
+
+    const messages = [{ role: 'system', content: systemInstruction }];
+    history.forEach(item => {
+        messages.push({
+            role: item.role === 'model' ? 'assistant' : 'user',
+            content: item.parts[0].text
+        });
+    });
+
+    const response = await fetch('https://api-inference.huggingface.co/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${els.HARDCODED_HF}`
+        },
+        body: JSON.stringify({
+            model: 'meta-llama/Meta-Llama-3-70B-Instruct',
+            messages: messages,
+            max_tokens: 2048
+        })
+    });
+
+    if (!response.ok) throw new Error("HF API Error");
+    const data = await response.json();
+    return data.choices[0].message.content;
 }
 
 function displayAIAnalysis(text) {
@@ -738,6 +1012,11 @@ function displayAIAnalysis(text) {
     els.aiAnalysisText.innerHTML = formatted;
     els.aiAnalysisResult.classList.remove('hidden');
     
+    // Save image state
+    localStorage.setItem('saved_img_analysis_html', els.aiAnalysisText.innerHTML);
+    localStorage.setItem('saved_img_preview_html', els.previewContainer.innerHTML);
+    localStorage.setItem('saved_img_files_data', JSON.stringify(selectedFilesData));
+    
     // Smooth scroll to result
     els.aiAnalysisResult.scrollIntoView({ behavior: 'smooth' });
 }
@@ -745,6 +1024,11 @@ function displayAIAnalysis(text) {
 // -----------------------------------------------------
 // CHATBOT LOGIC (HỎI AI)
 // -----------------------------------------------------
+
+function saveChatState() {
+    localStorage.setItem('saved_chat_history', JSON.stringify(chatHistory));
+    localStorage.setItem('saved_chat_html', els.chatMessages.innerHTML);
+}
 
 function appendMessage(role, text) {
     const isUser = role === 'user';
@@ -798,11 +1082,10 @@ function removeLoading() {
     const loading = document.getElementById('chatLoadingIndicator');
     if (loading) loading.remove();
 }
-
 async function handleSendChat() {
-    const apiKey = localStorage.getItem('gemini_api_key');
+    const apiKey = localStorage.getItem('deepseek_api_key') || els.HARDCODED_DEEPSEEK;
     if (!apiKey) {
-        alert("Vui lòng nhập Gemini API Key trong phần Cài đặt!");
+        alert("Vui lòng nhập DeepSeek API Key!");
         toggleSettings();
         return;
     }
@@ -826,42 +1109,44 @@ LNST = ${formatBillion(getFin(latest, ['ParentCompanyShareholderProfitAfterTax',
 ROE = ${formatPercent(getFin(latest, ['ROE']))}, P/E = ${latest.PE || getFin(latest, ['PE']) || 'N/A'}]`;
     }
 
+    const today = new Date();
+    const dateString = today.toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const timeString = today.toLocaleTimeString('vi-VN');
+
     chatHistory.push({
         role: "user",
-        parts: [{ text: text + contextStr }]
+        parts: [{ text: `[Thông tin hệ thống: Hôm nay là ${dateString}, ${timeString}]\n\n${text}${contextStr}` }]
     });
 
     appendLoading();
 
+    let responseText = "";
+    let providerName = "DeepSeek";
     try {
-        const responseText = await callGeminiChat(apiKey, chatHistory);
-        removeLoading();
-        appendMessage('model', responseText);
-        
-        // Add AI response to history
-        chatHistory.push({
-            role: "model",
-            parts: [{ text: responseText }]
-        });
-        
-    } catch (error) {
-        removeLoading();
-        let errMsg = error.message;
-        if (errMsg.toLowerCase().includes("api key") || errMsg.toLowerCase().includes("leaked") || errMsg.toLowerCase().includes("invalid")) {
-            errMsg = "Khóa API Gemini (AI) mặc định đã hết hạn hoặc bị vô hiệu hóa. <br><br>👉 Vui lòng mở phần <strong>Cài đặt</strong> (biểu tượng ⚙️ ở góc phải trên cùng) và nhập <strong>Gemini API Key</strong> của riêng bạn để tiếp tục sử dụng tính năng AI nhé!";
-        } else {
-            errMsg = "Xin lỗi, đã có lỗi xảy ra: " + errMsg;
-        }
-        appendMessage('model', errMsg);
-        chatHistory.pop(); // Remove the failed user message from history to prevent sync issues
+        responseText = await callDeepSeekChat(apiKey, chatHistory);
+    } catch (e) {
+        console.warn(`DeepSeek failed:`, e);
+    }
+
+    removeLoading();
+
+    if (responseText) {
+        const note = providerName === 'Gemini 1' ? "" : `\n\n*(Phản hồi bằng ${providerName} dự phòng)*`;
+        appendMessage('model', responseText + note);
+        chatHistory.push({ role: "model", parts: [{ text: responseText }] });
+        saveChatState();
+    } else {
+        appendMessage('model', "Toàn bộ hệ thống AI đang quá tải. Vui lòng thử lại sau 30 giây.");
+        chatHistory.pop();
+        saveChatState();
     }
 }
 
-async function callGeminiChat(apiKey, history) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-    
-    const systemInstruction = `Bạn là Cố vấn Tài chính AI hàng đầu Việt Nam. 
-Mục tiêu của bạn là giúp người dùng cá nhân đưa ra quyết định đầu tư chứng khoán chính xác.
+async function callDeepSeekChat(apiKey, history) {
+    const today = new Date();
+    const dateString = today.toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const systemInstruction = `Bạn là Cố vấn Tài chính AI hàng đầu Việt Nam. Hôm nay là ${dateString}. 
+Mục tiêu của bạn là giúp người dùng cá nhân đưa ra quyết định đầu tư chứng khoán chính xác dựa trên tình hình thực tế hiện tại.
 
 HƯỚNG DẪN QUAN TRỌNG:
 1. Khi người dùng yêu cầu "Gợi ý mã cổ phiếu":
@@ -875,27 +1160,41 @@ HƯỚNG DẪN QUAN TRỌNG:
 
 Trình bày bằng tiếng Việt, thân thiện, súc tích, dùng Markdown (in đậm, danh sách) để làm nổi bật thông tin.`;
 
-    const payload = {
-        systemInstruction: {
-            parts: [{ text: systemInstruction }]
-        },
-        contents: history
-    };
-
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+    const messages = [{ role: 'system', content: systemInstruction }];
+    history.forEach(item => {
+        messages.push({
+            role: item.role === 'model' ? 'assistant' : 'user',
+            content: item.parts ? item.parts[0].text : item.content
+        });
     });
 
-    if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error?.message || "Lỗi API Gemini");
-    }
+    const response = await fetch('https://api.deepseek.com/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+            model: 'deepseek-chat',
+            messages: messages
+        })
+    });
 
-    const result = await response.json();
-    return result.candidates[0].content.parts[0].text;
+    if (!response.ok) throw new Error("Lỗi API DeepSeek");
+    const data = await response.json();
+    return data.choices[0].message.content;
 }
 
 // Run app
-document.addEventListener('DOMContentLoaded', init);
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+
+function clearAllAppData() {
+    if (confirm("Bạn có chắc chắn muốn xóa toàn bộ lịch sử chat, cài đặt và dữ liệu đã lưu không? Hành động này không thể hoàn tác.")) {
+        localStorage.clear();
+        location.reload();
+    }
+}

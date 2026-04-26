@@ -78,4 +78,63 @@ input:focus, textarea:focus {
 [data-target="tab-bctc"].active { --active-color: #00F0FF; }
 [data-target="tab-recommend"].active { --active-color: #FBBF24; }
 [data-target="tab-ai-edu"].active { --active-color: #00F0FF; }
-[data-target="tab-ask-ai"].active { --active-color: #A855F7; }
+/* Financial Table Enhancements */
+.table-wrapper {
+    position: relative;
+    overflow-x: auto;
+    border-radius: 12px;
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/* Sticky First Column (Chỉ tiêu) */
+.sticky-col {
+    position: sticky;
+    left: 0;
+    z-index: 20;
+    background-color: #1E1E1E !important; /* matches dark-card */
+    border-right: 1px solid #333333;
+    box-shadow: 4px 0 8px rgba(0,0,0,0.3);
+}
+
+/* Sticky Header */
+thead th {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background-color: #121212 !important;
+}
+
+thead th.sticky-col {
+    z-index: 40;
+}
+
+/* Row Styling */
+tbody tr:nth-child(even) {
+    background-color: rgba(255,255,255,0.02);
+}
+
+tbody tr:hover td {
+    background-color: rgba(0, 240, 255, 0.05) !important;
+}
+
+td, th {
+    padding: 12px 16px !important;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Highlight Cards Layout */
+.highlight-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+@media (max-width: 360px) {
+    .highlight-grid {
+        grid-template-columns: 1fr;
+    }
+}

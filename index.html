@@ -17,6 +17,23 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Fallback for essential layout if Tailwind is slow */
+        body { 
+            background-color: #121212; 
+            color: #f3f4f6; 
+            margin: 0; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+        }
+        main { flex: 1; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+        nav { flex-shrink: 0; z-index: 50; }
+        .hidden { display: none !important; }
+        #toastContainer { pointer-events: none !important; }
+        #toastContainer > div { pointer-events: auto !important; }
+    </style>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -72,8 +89,11 @@
             </button>
         </div>
 
-        <button id="btnSettings" class="p-2.5 rounded-full hover:bg-dark-card transition shrink-0 active:scale-95">
+        <button id="btnSettings" class="p-2.5 rounded-full hover:bg-dark-card transition shrink-0 active:scale-95 relative">
             <i class="fa-solid fa-gear text-gray-400 text-xl"></i>
+            <!-- Global Analysis Pulse -->
+            <div id="globalLoadingPulse" class="hidden absolute top-2 right-2 w-3 h-3 bg-brand rounded-full animate-ping"></div>
+            <div id="globalLoadingDot" class="hidden absolute top-2.5 right-2.5 w-2 h-2 bg-brand rounded-full shadow-[0_0_8px_#00F0FF]"></div>
         </button>
     </header>
 
@@ -94,7 +114,12 @@
                 </div>
                 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Gemini API Key</label>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">DeepSeek API Key (Chat & BCTC)</label>
+                    <input type="password" id="deepseekKeyInput" class="w-full bg-dark-card border border-dark-border rounded-xl py-3 px-4 text-xs focus:outline-none focus:border-brand transition-all" placeholder="sk-...">
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Gemini API Key (Chỉ dùng Đọc ảnh)</label>
                     <input type="password" id="geminiKeyInput" class="w-full bg-dark-card border border-dark-border rounded-xl py-3 px-4 text-xs focus:outline-none focus:border-brand transition-all" placeholder="AIzaSy...">
                 </div>
                 
@@ -102,6 +127,20 @@
                     Lưu Cấu Hình
                 </button>
                 <p id="tokenStatus" class="text-center text-xs hidden"></p>
+
+                <div class="pt-6 border-t border-dark-border space-y-4">
+                    <div class="flex items-center justify-between p-3 bg-dark-bg border border-dark-border rounded-lg">
+                        <span class="text-[10px] text-gray-500 font-bold uppercase">Phiên bản hệ thống</span>
+                        <span class="text-[10px] font-mono text-brand">v19.0 - Stable</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-dark-bg border border-dark-border rounded-lg">
+                        <span class="text-[10px] text-gray-500 font-bold uppercase">Bản quyền thiết kế</span>
+                        <span class="text-[10px] font-bold text-gray-300">Nguyễn Hoàng Giang</span>
+                    </div>
+                    <button onclick="clearAllAppData()" class="w-full py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-xl transition border border-red-500/30 font-bold text-xs">
+                        <i class="fa-solid fa-trash-can mr-1.5"></i>Xóa sạch dữ liệu & Reset
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -141,7 +180,7 @@
                     </div>
 
                     <!-- Highlight Cards -->
-                    <div class="grid grid-cols-2 gap-2">
+                    <div class="highlight-grid">
                         <div class="bg-dark-card rounded-xl p-3 border border-dark-border">
                             <p class="text-[9px] text-gray-500 font-bold uppercase mb-1">Doanh thu</p>
                             <p id="valRevenue" class="text-base font-bold text-white leading-tight">---</p>
@@ -175,7 +214,7 @@
                         <div class="p-3 border-b border-dark-border">
                             <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Sức khỏe tài chính</h3>
                         </div>
-                        <div class="overflow-x-auto scrollbar-hide">
+                        <div class="table-wrapper scrollbar-hide">
                             <table class="w-full text-left text-[11px] whitespace-nowrap">
                                 <thead class="text-gray-500 bg-dark-bg/50 font-bold">
                                     <tr id="tableHead">
@@ -247,7 +286,7 @@
                             <i class="fa-solid fa-cloud-arrow-up text-3xl text-brand"></i>
                         </div>
                         <p class="text-white font-bold text-sm">Tải ảnh BCTC</p>
-                        <p class="text-[10px] text-gray-500 mt-2">Dùng Gemini AI để đọc và giải thích số liệu.</p>
+                        <p class="text-[10px] text-gray-500 mt-2">Dùng DeepSeek AI để đọc và giải thích số liệu.</p>
                         <button id="btnSelectFile" class="mt-6 w-full py-3 bg-brand text-black font-bold rounded-xl active:scale-95 transition">Chọn tệp</button>
                     </div>
                     <div id="previewArea" class="hidden flex-col items-center w-full">
@@ -267,7 +306,7 @@
                 <div id="aiAnalysisResult" class="hidden bg-dark-card rounded-2xl p-5 border border-dark-border shadow-sm">
                     <div class="flex items-center justify-between mb-4 border-b border-dark-border pb-3">
                         <h4 class="text-brand font-bold text-xs uppercase tracking-wider">Kết quả AI</h4>
-                        <span class="text-[9px] bg-brand/10 text-brand px-2 py-1 rounded-md font-bold">GEMINI 2.5</span>
+                        <span class="text-[9px] bg-brand/10 text-brand px-2 py-1 rounded-md font-bold">DEEPSEEK</span>
                     </div>
                     <div id="aiAnalysisText" class="text-[13px] text-gray-300 leading-relaxed space-y-4"></div>
                 </div>
@@ -287,6 +326,13 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Global Footer Credit -->
+            <footer class="mt-auto py-8 text-center opacity-30 select-none">
+                <p class="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-500">
+                    &copy; 2024 Nguyễn Hoàng Giang • All Rights Reserved
+                </p>
+            </footer>
         </div>
         
         <!-- Chat Input Area (Only visible in Chat Tab) - Absolute bottom but above Nav -->
@@ -313,7 +359,7 @@
     </main>
 
     <!-- Bottom Navigation Bar -->
-    <nav class="safe-bottom flex items-center justify-between px-6 py-2 border-t border-dark-border bg-dark-bg/95 backdrop-blur shrink-0">
+    <nav class="safe-bottom flex items-center justify-between px-6 py-2 border-t border-dark-border bg-dark-bg/95 backdrop-blur shrink-0 z-50">
         <button class="nav-tab active flex flex-col items-center gap-1 py-1 group" data-target="tab-bctc">
             <i class="fa-solid fa-chart-bar text-xl text-gray-500 group-[.active]:text-brand transition-colors"></i>
             <span class="text-[9px] font-bold text-gray-500 group-[.active]:text-brand transition-colors">BCTC</span>
@@ -332,6 +378,18 @@
         </button>
     </nav>
 
-    <script src="app.js?v=2.0"></script>
+    <script>
+        window.addEventListener('error', function(e) {
+            alert("Lỗi hệ thống nghiêm trọng: " + e.message);
+        });
+        window.addEventListener('unhandledrejection', function(e) {
+            alert("Lỗi mạng/API (Unhandled Promise): " + e.reason);
+        });
+    </script>
+    
+    <!-- Global Toast Notification -->
+    <div id="toastContainer" style="position: fixed; top: 80px; left: 16px; right: 16px; z-index: 9999; pointer-events: none; display: flex; flex-direction: column; gap: 12px;"></div>
+
+    <script src="app.js?v=30.0"></script>
 </body>
 </html>
